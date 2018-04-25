@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<!--引入SESSION验证是否登录状态-->
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>商品销售。带<span>*</span>为必填项目。先把商品加入订单。所有商品都加入订单后点<span>确认提交</span>完成</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>商品销售</span>
+					  	</div>
+				    	<div id="admin_add" style="width: 100%;">
+				    		<p><span>*</span> 商品条形码：<br /> <el-input v-model="code" size="small"></el-input></p>
+
+				    		<p><span>*</span> 商品数量：<br />  <el-input v-model="salenum" size="small"></el-input></p>
+					    	
+					    	<el-button type="success" @click="submits" >加入订单</el-button><span style="color: green;margin-left: 15px;" @click="resets">重新出库</span>
+					    	
+					    	<!--显示列表-->
+					    	<el-table :data="tableData" style="width: 100%" >
+								    <el-table-column label="名称">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.name }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="数量">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px">{{ scope.row.salenum }}</span>
+								       
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="单价(元)">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px">{{ scope.row.price }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="总价(元)">
+								      <template slot-scope="scope" >
+								         <span style="margin-left: 10px">{{ scope.row.salenum*scope.row.price }}</span>
+								      </template>
+								    </el-table-column>
+								    <!--<el-table-column label="优惠总价(元)">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.salenum*scope.row.saleprice*0.02 }}</span>
+								      </template>
+								    </el-table-column>-->
+								    <el-table-column label="商品描述">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.intro}}</span>
+								      </template>
+								    </el-table-column>
+						 		 </el-table>
+					    	
+					    	<p>会员卡号：<br />  <el-input v-model="cardnum" placeholder="若不是会员，可以忽略此项" size="small"></el-input></p>
+					    	
+					    	<p>
+					    		<el-button type="primary" @click="add">确认提交</el-button>
+					    	</p>
+				    	</div>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+					tableData: [],
+					options:[{
+						value:0,
+						label:'顶级分类'
+					}],
+					code:'',
+					salenum:'1',
+					cardnum:'',
+				},
+				//定义生命周期函数
+				mounted:function () {
+					
+				},
+				methods:{
+					//定义加入订单函数
+					submits:function(){
+						//获取输入的条形码和数量
+						var code=this.code;
+						var salenum=this.salenum;
+						//另存指针
+						var _that=this;
+						//发起请求 查询当前条形码数据 和将数量写入
+						ajax({
+							type:"get",
+							url:"/api/sale_one.php?code="+code+"&salenum="+salenum,
+							success:function(data){
+								console.log(data);
+								if(data.errcode=="1008"){
+									alert("该商品不存在！！");
+								}
+								else{
+									//覆盖初始化数据去渲染列表
+									_that.tableData.push(data);
+								}
+							}
+						})
+						
+					},
+					resets:function(){
+						this.tableData=[];
+					},
+					//定义提交订单函数
+					add:function(){
+						var _that=this;
+						//先获取会员卡号
+						var cardnum=this.cardnum;
+						
+						//发起请求判断该会员是否存在		
+						ajax({
+							type:"get",
+							url:"/api/checkmember.php?cardnum="+cardnum,
+							success:function(data){
+								//该会员不存在或错误
+								if(data.errcode==1009){
+									var discount=1;
+									//利用循环将读取绑定的数据
+									for(var i in _that.tableData){
+										var salenum=_that.tableData[i].salenum;
+										var price=_that.tableData[i].price;
+										var codes=_that.tableData[i].goodcode;
+										var names=_that.tableData[i].name;
+										
+										//console.log(salenum,saleprice,discount);
+										//console.log(_that.tableData.length);
+										
+										//发起请求将订单填入数据库
+										ajax({
+											type:"post",
+											url:"./api/sale_save_add.php",
+											data:`salenum=${salenum}&price=${price}&discount=${discount}&codes=${codes}&names=${names}`,
+											success:function(data){
+												//console.log(data);
+												//根据结果判定
+												if(data.errcode==0){
+													alert(data.msg);
+													location.href="sale_list.html";
+												}
+												else{
+													alert(data.msg);
+												}
+												
+											}
+										})
+									}
+									
+								}
+								//会员存在计算折扣
+								else{
+									//获取值
+									//判断会员等级决定折扣价格
+									var usergroup=data.usergroup;
+										var discount=1;
+									if(usergroup=="至尊会员"){
+										var discount=0.8;
+									}
+									if(usergroup=="超级会员"){
+										var discount=0.9;
+									}
+									if(usergroup=="普通会员"){
+										var discount=0.95;
+									}
+									//利用循环将读取绑定的数据
+									for(var i in _that.tableData){
+										var salenum=_that.tableData[i].salenum;
+										var price=_that.tableData[i].price;
+										var codes=_that.tableData[i].goodcode;
+										var names=_that.tableData[i].name;
+										
+										//console.log(salenum,saleprice,discount);
+										//console.log(_that.tableData.length);
+										
+										//发起请求将订单填入数据库
+										ajax({
+											type:"post",
+											url:"./api/sale_save_add.php",
+											data:`salenum=${salenum}&price=${price}&discount=${discount}&codes=${codes}&names=${names}`,
+											success:function(data){
+												//console.log(data);
+												//根据结果判定
+												if(data.errcode==0){
+													alert(data.msg);
+													location.href="sale_list.html";
+												}
+												else{
+													alert(data.msg);
+												}
+												
+											}
+										})
+									}
+									
+								}
+							}
+						})
+					}
+				}
+//				,
+//				computed:{
+//					totalprice:function(){
+//						return this.tableData[0].saleprice*this.tableData[0].salenum;
+//					}
+//				}
+				//当界面需要计算一次时可以使用，需要多次时不能使用，否则出问题
+				
+			})
+		</script>
+	</body>
+</html>

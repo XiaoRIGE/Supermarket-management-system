@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装的AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>查看商品的销售明细</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+				    		<div slot="header" class="clearfix" >
+							    <span>销售明细</span>
+						  	</div>
+						  	<div id="member_form">
+						  		<el-row id="member_form_header">
+						  			<p>
+						  				<span>开始时间：</span>
+							  			<el-input size="mini" placeholder="请输入内容" v-model="keywords" clearable></el-input>
+							  			<span>结束时间：</span>
+							  			<el-input size="mini" placeholder="请输入内容" v-model="keywords" clearable></el-input>
+						  			</p>
+						  			<p>
+						  				<span>关键字：</span>
+							  			<el-input size="mini" placeholder="请输入内容" v-model="keywords" clearable></el-input>
+							  			<span>(商品名称，订单号，客户名字，会员卡号)</span>
+									   <el-button type="success" @click="search" >搜索</el-button>
+						  			</p>
+						  			
+								</el-row>
+								
+								<el-table :data="tableData" style="width: 100%" >
+								    <el-table-column label="商品条形码">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.code }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="商品名称">
+								      <template slot-scope="scope">
+								         <span style="margin-left: 10px">{{ scope.row.name }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="所属分类">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.cate_name }}</span>
+								      </template>
+								    </el-table-column>
+								 
+								    
+								    <el-table-column label="售价（元）">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.price }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="促销价(元)">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px;color: red;" v-if="scope.row.saled==1">{{ scope.row.price*0.8 }}</span>
+								       <span style="margin-left: 10px;color: red;" v-else="">未促销</span>
+								       
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="市场价(元)">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px">{{ scope.row.saleprice }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="库存">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.num }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="库存总额(元)">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.price*scope.row.num }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="销售总额(元)">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.saleprice*scope.row.num  }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="管理">
+								      <template slot-scope="scope">
+								       <i class="el-icon-edit" @click="update(scope.row.id)"></i>
+								       <i class="el-icon-delete " @click="del(scope.row.id)"></i>
+								      </template>
+								    </el-table-column>
+						 		 </el-table>
+						  		<el-pagination background layout="prev, pager, next"  @current-change="changepage" :page-count="pagecount"	:current-page.sync="curpage"></el-pagination>
+						  		
+						  	</div>
+				    	
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script>
+			new Vue({
+				el:"#app",
+				data:{
+					tableData: [],
+					options: [{
+			          value:0,
+					  label:'顶级分类'
+			        }],
+					cate_id:"",
+					pagecount:1,
+					keywords:'',
+					curpage:1,
+				},
+				//定义生命周期函数
+				mounted:function(){
+					var _that=this;
+					//页面初始化后加载第一条数据
+					this.show(1);
+					//发起请求获取所有商品类值
+					ajax({
+						url:"/api/cate_name.php",
+						success:function(data){
+							//console.log(data);
+							_that.options=_that.options.concat(data);
+						}
+					})
+					
+				},
+				methods:{
+					//定义页码切换功能
+					changepage:function(page){
+						this.show(page);
+					},
+					//定义获取goods列表函数
+					show:function(page){
+						var cate_id=this.cate_id;
+						var keywords=this.keywords;
+						var _that=this;
+						//console.log(cate_id,keywords);
+						ajax({
+							type:"get",
+							url:'/api/goods_list.php?page='+page+'&cate_id='+cate_id+'&keywords='+keywords,
+							success:function(data){
+								//将后端传过来的页面值通过数据双向绑定实现页面的显示
+								//console.log(data);
+								_that.pagecount=data.pop();
+								//将接收到的数据写入页面
+								//console.log(data);
+								_that.tableData=data;
+							}
+						})
+					},
+					//定义搜索时执行函数
+					search:function(page){
+						//获取类的值和关键字的值
+						this.show(1);
+						console.log(this.curpage);
+						this.curpage=1;
+					},
+					//定义删除功能函数
+					del:function(id){
+						var _that=this;
+						ajax({
+							type:"get",
+							url:"/api/goods_delete.php?id="+id,
+							success:function(data){
+								if(data==1){
+									alert("删除成功！");
+									_that.show(1);
+								}
+							}
+						})
+					},
+					//定义修改功能函数
+					update:function(id){
+						location.href="goods_update.html?id="+id;
+					}
+				}
+
+			})
+		</script>
+	</body>
+</html>

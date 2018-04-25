@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装的AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+		<!--引入jQ使用serialize方法-->
+		<script type="text/javascript" src="js/jquery-1.11.0.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>新增商品</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				     <!--中间主体栏目-->
+			    <el-main>
+			    	<el-card class="box-card">
+					  <div slot="header" class="clearfix">
+					    <span>新增商品</span>
+					  </div>
+					  <el-form class="text item" id="admin_add">
+					  	<p>
+					  		<span>*</span> 所属分类： 
+					  		<el-select v-model="cate_id" name="cate_id" placeholder="请选择分类" size="small">
+							    <el-option
+							      v-for="item in options"
+							      :key="item.value"
+							      :label="item.label"
+							      :value="item.value">
+							    </el-option>
+							</el-select>
+					  	</p>
+					  	<p><span>*</span> 商品条形码： <el-input v-model="code" name="code" size="small"></el-input></p>
+					  	<p><span>*</span> 商品名称： <el-input v-model="name" name="name" size="small"></el-input></p>
+					  	<p><span>*</span> 成本价： <el-input v-model="costprice" name="costprice" size="small"></el-input></p>
+					  	<p>商品售价： <el-input size="small" v-model="price" name="price"></el-input></p>
+					  	<p>市场价： <el-input size="small" v-model="saleprice"  name="saleprice"></el-input></p>
+					  	<p><span>*</span> 入库数量： <el-input v-model="num" name="num" size="small"></el-input></p>
+					  	<p>商品重量： <el-input size="small" v-model="weight" name="weight"></el-input></p>
+					  	<p>是否促销：
+					  		<el-radio-group v-model="saled" name="saled">
+							    <el-radio :label="1" name="saled">启用</el-radio>
+							    <el-radio :label="0" name="saled">禁用</el-radio>
+							</el-radio-group>
+					  	</p>
+					  	<p>商品简介： <el-input type="textarea" v-model="intro" name="intro" size="small"></el-input></p>
+					  	
+					  	<p><el-button type="primary" @click="add">添加商品</el-button></p>
+					  </el-form>
+					</el-card>
+			    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script>
+			new Vue({
+				el:"#app",
+				data:{
+					options: [{
+			          value:0,
+					  label:'顶级分类'
+			        }],
+					name:'',
+			        code:'',
+			        cate_id:"",
+			        costprice:0,
+			        num:1,
+			        intro:'',
+			        weight:0.5,
+			        saled:0,
+			        intime:''
+				},
+				mounted:function(){
+					var _that=this;
+					//将所有分类写入
+					ajax({
+						type:'get',
+						url:'/api/cate_name2.php',
+						success:function(data){
+							//console.log(data);
+							_that.options=_that.options.concat(data);
+						}
+					})
+				},
+				methods:{
+					add:function(){
+						//1.获取表单数据
+						//serialize()方法批量后去表单数据并拼接
+						//var all=$("#admin_add").serialize();
+						//console.log("表单数据",all);
+						//console.log("表单数据2",cate_id);
+						var cate_id=this.cate_id;
+						var code=this.code;
+						var name=this.name;
+						var costprice=this.costprice;
+						var price=this.price;
+						var saleprice=this.saleprice;
+						var num=this.num;
+						var weight=this.weight;
+						var saled=this.saled;
+						var intro=this.intro;
+						console.log(cate_id);
+						
+						//2.发起请求将数据写入数据库
+						ajax({
+							type:'post',
+							url:'/api/goods_save_add.php',
+							//serialize()批量获取值并拼接
+							//data:all;
+							data:`cate_id=${cate_id}&code=${code}&name=${name}&costprice=${costprice}&price=${price}&saleprice=${saleprice}&num=${num}&weight=${weight}&saled=${saled}&intro=${intro}`,
+							success:function(data){
+								console.log(data);
+								//根据后台传过来的值做判定
+								if(data.errcode=="0"){
+									alert(data.msg);
+									location.href="goods_list.html";
+								}
+								else{
+									alert(data.msg);
+								}
+							}
+						})
+					}
+			},
+			computed:{
+				price:function(){
+					return this.costprice*10;
+				},
+				saleprice:function(){
+					return this.price*1.2;
+				}
+			}
+			})
+		</script>
+	</body>
+</html>

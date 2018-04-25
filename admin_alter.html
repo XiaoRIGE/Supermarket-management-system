@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>修改管理员账号</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>修改管理员账号</span>
+					  	</div>
+				    	<div id="admin_add">
+				    		<p>
+				    		<span>*</span>原密码：
+				    		<el-input v-model="pwd1"  size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>新密码：
+				    		<el-input v-model="pwd2" type="password" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>确认新密码：
+				    		<el-input v-model="pwd3" type="password" size="small"></el-input>
+				    	</p>
+				    	
+				    	<p>
+				    		<el-button type="primary" @click="alter" >修改</el-button>
+				    	</p>
+				    	</div>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+			        pwd1:'',
+			        pwd2:'',
+			        pwd3:''
+				},
+				methods:{
+					alter:function(){
+						//1.获取数据
+						var pwd1=this.pwd1;
+						var pwd2=this.pwd2;
+						var pwd3=this.pwd3;
+						
+						//判定原密码是否正确（前提：获取当前用户密码）
+							//判定两次输入密码是否相同
+							if(pwd2!=pwd3){
+								alert("请输入相同的密码！")
+							}
+							else{
+								//2.发起AJAX请求
+								var ajax= new XMLHttpRequest();
+								ajax.open('post','/api/admin_save_alter.php');
+								ajax.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+								
+								ajax.send(`pwd1=${pwd1}&pwd2=${pwd2}&pwd3=${pwd3}`);
+								ajax.onreadystatechange=function(){
+									if(ajax.readyState==4 && ajax.status==200){
+										var data=ajax.responseText;
+										
+										var data2=JSON.parse(data);
+										//console.log(data2);
+										
+										if(data2.errcode=='0'){
+											alert('修改成功');
+											
+											top.location.href='./login.html';
+											//当密码修改成功时，注销登录
+											var ajaxs=new XMLHttpRequest();
+											ajaxs.open('get','/api/logout.php');
+											ajaxs.send();
+											ajaxs.onreadystatechange=function(){
+												if(ajaxs.readyState==4 &&ajaxs.status==200){
+													console.log(ajaxs.responseText);
+													
+												}
+											}
+											
+											
+											
+											
+										}else{
+											alert(data2.msg);
+										}
+									}
+								}
+							}
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

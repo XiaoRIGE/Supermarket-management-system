@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>超市管理系统</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		 
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+		
+	</head>
+	<body>
+		<div id="app">
+			<el-container >
+				<!--左侧导航栏-->
+			    <el-aside width="200px" class="cl">
+			    	<h3 class="menu">华联超市管理系统</h3>
+			    	<p class="fr">您好：<span >{{users}}</span></p>
+			    	<p class="fr">
+			    		<a href="index.html">管理首页</a>
+			    		|
+			    		<a href="./api/logout.php">退出系统</a>
+			    	</p>
+			    	<el-menu  :default-openeds="['8']">
+				      <el-submenu index="1">
+				        <template slot="title">
+				          <span>分类信息</span>
+				        </template>
+				        <el-menu-item index="1-1"><a href="cate_list.html" target="main">分类管理</a></el-menu-item>
+				        <el-menu-item index="1-2"><a href="cate_add.html" target="main">添加分类</a></el-menu-item>
+				      </el-submenu>
+				      <el-submenu index="2">
+				        <template slot="title">
+				          <span>商品管理</span>
+				        </template>
+				        <el-menu-item index="2-1"><a href="goods_list.html" target="main">商品管理</a></el-menu-item>
+				        <el-menu-item index="2-2"><a href="goods_add.html" target="main">添加商品</a></el-menu-item>
+				      </el-submenu>
+				      <el-submenu index="3">
+				        <template slot="title">
+				          <span>进货管理</span>
+				        </template>
+				        <el-menu-item index="3-1">库存管理</el-menu-item>
+				        <el-menu-item index="3-2">添加库存</el-menu-item>
+				      </el-submenu>
+				      <el-submenu index="4">
+				        <template slot="title">
+				          <span>出货管理</span>
+				        </template>
+				        <el-menu-item index="4-1"><a href="sale_list.html" target="main">销售列表</a></el-menu-item>
+				        <el-menu-item index="4-2"><a href="sale_add.html" target="main">商品出库</a></el-menu-item>
+				        <el-menu-item index="4-2"><a href="sale_refund.html" target="main">商品退货</a></el-menu-item>
+				      </el-submenu>
+				       <el-submenu index="5">
+				        <template slot="title">
+				          <span>统计管理</span>
+				        </template>
+				        <el-menu-item index="5-1">销售统计</el-menu-item>
+				        <el-menu-item index="5-2">进货统计</el-menu-item>
+				      </el-submenu>
+				       <el-submenu index="6">
+				        <template slot="title">
+				          <span>账号管理</span>
+				        </template>
+				        <el-menu-item index="6-1"><a href="admin_list.html" target="main">账号管理</a></el-menu-item>
+				        <el-menu-item index="6-2"><a href="admin_add.html" target="main">添加账号</a></el-menu-item>
+				        <el-menu-item index="6-3"><a href="admin_alter.html" target="main">密码修改</a></el-menu-item>
+				      </el-submenu>
+				       <el-submenu index="7">
+				        <template slot="title">
+				          <span>会员管理</span>
+				        </template>
+				        <el-menu-item index="7-1"><a href="member_list2.html" target="main">账号管理</a></el-menu-item>
+				        <el-menu-item index="7-2"><a href="member_add.html" target="main">添加账号</a></el-menu-item>
+				      </el-submenu>
+				       <el-submenu index="8">
+				        <template slot="title">
+				          <span>系统管理</span>
+				        </template>
+				        <el-menu-item index="8-1"><a href="main.html" target="main">系统信息</a></el-menu-item>
+				        <el-menu-item index="8-2">系统配置</el-menu-item>
+				        <el-menu-item index="8-3">权限管理</el-menu-item>
+				        <el-menu-item index="8-4">添加管理组</el-menu-item>
+				      </el-submenu>
+				    </el-menu>
+			    </el-aside>
+			   
+			   
+			    <!--右侧内容-->
+			    <iframe src="main.html" name="main"></iframe>
+			    
+			 
+			</el-container>
+		</div>
+		<script>
+			new Vue({
+				el:"#app",
+				data :{
+					 users:'',
+					tableData2: [{
+			          name: '五粮液',
+			          num: '651',
+			       }, {
+			          name: '茅台酒',
+			          num: '165'
+			        }, {
+			          name: '五粮液',
+			          num: '651',
+			        }, {
+			          name: '五粮液',
+			          num: '651',
+			        }]
+			       
+				},
+				methods: {
+			      handleOpen(key, keyPath) {
+			        console.log(key, keyPath);
+			      },
+			      handleClose(key, keyPath) {
+			        console.log(key, keyPath);
+			      }
+			   },
+			   mounted:function(){
+			   	var _that=this;
+			   		var ajax=new XMLHttpRequest();
+			   		ajax.open('get','/api/getid.php');
+			   		ajax.send();
+			   		ajax.onreadystatechange=function(){
+			   			if(ajax.readyState==4&&ajax.status==200){
+			   				var data=ajax.responseText;
+			   				
+			   				var data2=JSON.parse(data);
+			   				//console.log(typeof data2);
+			   				_that.users=data2.username;
+			   			}
+			   		}
+			   		
+			   }
+			})
+		</script>
+	</body>
+</html>

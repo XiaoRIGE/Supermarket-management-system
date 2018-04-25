@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--
+		<!--CDN引入-->
+		<!-- 引入样式 -->
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+		
+		<!--引入Echars库文件-->
+		<script src="js/echarts-all.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>查看更多的系统信息</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main>
+				    	<el-card class="box-card">
+			    		<div slot="header" class="clearfix">
+						    <span>系统信息</span>
+					  	</div>
+				    	<el-alert title="商品总数：5.已经销售的总金额：890.00。库存商品总价"  type="info"  show-icon></el-alert>
+				    	<el-alert title="导入数据"  type="info"  show-icon></el-alert>
+				    	<el-row :gutter="40">
+				    		<!--内容主体左侧-->
+						  <el-col :span="12">
+						  	<!--使用Echars绘制报表  注意:必须定义宽高才能使用-->
+						  	<div id="Echars_box" style="width: 512px;height:400px;"></div>
+						  	
+						  </el-col>
+						  <!--内容主体左侧-->
+						  <el-col :span="12">
+						  	 <el-card class="box-card">
+							  	<div slot="header" class="clearfix">
+								    <span>缺货的商品</span>
+							  	</div>
+							 	<el-table :data="tableData2"  style="width: 100%" >
+								    <el-table-column prop="name" label="商品名称" width="225"> </el-table-column>
+								    <el-table-column prop="num" label="销量" width="225"> </el-table-column>
+								</el-table>
+							</el-card>
+						  </el-col>
+						</el-row>
+				    	
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			//创建Vue实例执行数据渲染
+			new Vue({
+				el:"#app",
+				data :{
+					tableData2: [{
+			          name: '五粮液',
+			          num: '651',
+			       }, {
+			          name: '茅台酒',
+			          num: '165'
+			        }, {
+			          name: '五粮液',
+			          num: '651',
+			        }, {
+			          name: '五粮液',
+			          num: '651',
+			        }]
+				}
+			})
+			  // 基于准备好的dom，初始化echarts实例
+       		var myChart = echarts.init(document.getElementById('Echars_box'));
+			 // 指定图表的配置项和数据
+        var option = {
+            title : {
+                text: '商品分类',
+                subtext: '类目表由实际决定',
+                x:'center'
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%) "
+            },
+            legend: {
+                orient : 'vertical',
+                x : 'left',
+                data:['服饰类','家电类','生活类','食品类','科技类']
+            },
+            
+            //可拖拽重计算属性
+            calculable : true,
+            series : [
+                {
+                    name:'月度营收占比',
+                    type:'pie',
+                    radius : '55%',
+                    center: ['50%', '60%'],
+                    data:[
+                        {value:335, name:'服饰类'},
+                        {value:310, name:'家电类'},
+                        {value:234, name:'生活类'},
+                        {value:135, name:'食品类'},
+                        {value:1548, name:'科技类'}
+                    ]
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+		</script>
+	</body>
+</html>

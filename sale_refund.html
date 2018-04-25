@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<!--引入SESSION验证是否登录状态-->
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>商品退货</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>商品退货</span>
+					  	</div>
+				    	<div id="admin_add" style="width: 100%;">
+				    		<p><span>*</span> 订单号： 
+				    			<el-input v-model="code" size="small"></el-input>
+				    			<el-button type="success" @click="" >查询</el-button>
+				    		</p>
+
+					    	
+					    	
+					    	<!--退货订单列表显示列表-->
+					    	<el-table :data="tableData" style="width: 100%" >
+								    <el-table-column label="订单号">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.ordernum }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="商品名称">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px">{{ scope.row.name }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="数量">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px">{{ scope.row.salenum }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="单价(元)">
+								      <template slot-scope="scope">
+								       <span style="margin-left: 10px">{{ scope.row.saleprice }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="总价(元)">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.totalprice }}</span>
+								      </template>
+								    </el-table-column>
+								    <el-table-column label="优惠总价(元)">
+								      <template slot-scope="scope">
+								        <span style="margin-left: 10px">{{ scope.row.totalprice*0.1 }}</span>
+								      </template>
+								    </el-table-column>
+						 		 </el-table>
+					    	
+					    	
+					    	
+					    	<p>
+					    		<el-button type="primary" @click="add">确认退货</el-button>
+					    	</p>
+				    	</div>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+					tableData: [],
+					options:[{
+						value:0,
+						label:'顶级分类'
+					}],
+					num:'1',
+					state:0,
+					code:'',
+					cardnum:''
+				},
+				//定义生命周期函数
+				mounted:function () {
+					var _that=this;
+					//将子分类写入到分类
+					ajax({
+						type:'get',
+						url:'/api/cate_name2.php',
+						success:function(data){
+							//console.log(data);
+							_that.options=_that.options.concat(data);
+						}
+					})
+				},
+				methods:{
+					add:function(){
+						var _that=this;
+						var name=this.name;
+						var state=this.state;
+						var category=this.category;
+						//console.log(name,state,category);
+						ajax({
+							type:'post',
+							url:'/api/cate_save_add.php',
+							data:`name=${name}&state=${state}&parentid=${category}`,
+							success:function(data){
+								console.log(data);
+								if(data.errcode=="0"){
+									alert(data.msg);
+									location.href="cate_list.html";
+								}
+								else{
+									alert(data.msg);
+								}
+							}
+						})
+					}
+				}
+				
+			})
+		</script>
+	</body>
+</html>

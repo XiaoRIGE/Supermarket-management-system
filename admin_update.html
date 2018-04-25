@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>修改管理员账号</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>修改管理员账号</span>
+					  	</div>
+				    	<div id="admin_add">
+				    		<p>
+				    		<span>*</span>用户名：
+				    		<el-input v-model="username" placeholder="请输入用户名" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>密码：
+				    		<el-input v-model="pwd" type="password" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>选择用户组：
+				    		<el-select v-model="usergroup" placeholder="请选择">
+						    <el-option
+						      v-for="item in options"
+						      :key="item.value"
+						      :label="item.label"
+						      :value="item.value">
+						    </el-option>
+						  </el-select>
+				    	</p>
+				    	<p>
+				    		<el-button type="primary" @click="alter">修改</el-button>
+				    	</p>
+				    	</div>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+					options: [{
+			          value: '超级管理员',
+			          label: '超级管理员'
+			        }, {
+			          value: '普通管理员',
+			          label: '普通管理员'
+			        }, {
+			          value: '普通员工',
+			          label: '普通员工'
+			        }],
+			        usergroup:'',
+			        username:'',
+			        pwd:''
+				},
+				methods:{
+					//点击修改时执行函数
+					alter:function(){
+						var username=this.username;
+						var pwd=this.pwd;
+						var usergroup=this.usergroup;
+						var id=location.href.split("=")[1];
+						
+						var ajax= new XMLHttpRequest();
+						ajax.open('post','/api/admin_update.php');
+						ajax.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+						ajax.send(`id=${id}&username=${username}&pwd=${pwd}&usergroup=${usergroup}`);
+						ajax.onreadystatechange=function(){
+						if(ajax.readyState==4 && ajax.status==200){
+							var data=ajax.responseText;
+							if(data=='1'){
+								alert("修改成功!");
+								location.href="admin_list.html";
+							}
+							else{
+								alert("修改失败！");
+							}
+							
+						}
+					}
+						
+					}
+				},
+				//页面初始化时渲染数据
+				mounted:function(){
+					var _that=this;
+					//1.获取ID
+					var id=location.href.split("=")[1];
+					
+					var ajax= new XMLHttpRequest();
+					ajax.open('post','/api/admin_render.php');
+					ajax.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+					ajax.send(`id=${id}`);
+					ajax.onreadystatechange=function(){
+						if(ajax.readyState==4 && ajax.status==200){
+							var data=ajax.responseText;
+							var data2=JSON.parse(data);
+							console.log(data);
+							_that.username=data2.username;
+							_that.pwd=data2.password;
+							_that.usergroup=data2.usergroup;
+						}
+					}
+				}	
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>查看所有管理员账号</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>账号管理</span>
+					  	</div>
+					  	
+				    	<el-table :data="tableData" style="width: 100%">
+						    <el-table-column label="用户名称">
+						      <template slot-scope="scope">
+						        <span style="margin-left: 10px">{{ scope.row.username }}</span>
+						      </template>
+						    </el-table-column>
+						    <el-table-column label="用户组">
+						      <template slot-scope="scope">
+						         <span style="margin-left: 10px">{{ scope.row.usergroup }}</span>
+						      </template>
+						    </el-table-column>
+						    <el-table-column label="操作">
+						      <template slot-scope="scope">
+						        <el-button>编辑</el-button>
+						        <el-button type="danger" @click="del_admin(scope.row.id)">删除</el-button>
+						      </template>
+						    </el-table-column>
+						  </el-table>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+					tableData: []
+				},
+				//生命周期函数
+				mounted:function(){
+					this.show();
+				},
+				methods:{
+					del_admin:function(id){
+						var _that=this;
+						var ajax= new XMLHttpRequest();
+						ajax.open('get','/api/admin_delete.php?id='+id);
+						ajax.send();
+						ajax.onreadystatechange=function(){
+							if(ajax.readyState==4 && ajax.status==200){
+								var data=ajax.responseText;
+								if(data=='1'){
+									alert("删除成功");
+									_that.show();
+									
+								}
+								else{
+									alert("删除失败！");
+								}
+							}
+						}
+					},
+					show:function(){
+						var _that=this;
+						var ajax= new XMLHttpRequest();
+						ajax.open('get','/api/admin_list.php');
+						ajax.send();
+						ajax.onreadystatechange=function(){
+							if(ajax.readyState==4 && ajax.status==200){
+								var data=ajax.responseText;
+								var data2=JSON.parse(data);
+								console.log(data2);
+								_that.tableData=data2;
+							}
+						}
+					}
+				}
+				
+				
+			})
+		</script>
+	</body>
+</html>

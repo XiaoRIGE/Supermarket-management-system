@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<!--引入SESSION验证是否登录状态-->
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>查看和管理所有分类</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>添加分类</span>
+					  	</div>
+				    	<div id="admin_add">
+				    		<p>
+					    		<span>*</span>所属分类：
+					    		<el-select v-model="category" placeholder="顶级分类">
+								    <el-option
+								      v-for="item in options"
+								      :key="item.value"
+								      :label="item.label"
+								      :value="item.value">
+								    </el-option>
+								  </el-select>
+					    	</p>
+				    		
+				    		<p>
+					    		<span>*</span>分类名称：
+					    		<el-input v-model="name" size="small"></el-input>
+					    	</p>
+					    	<p>
+					    		用户状态：
+					    		<el-radio-group  v-model="state">
+								  <el-radio :label="1">启用</el-radio>
+								  <el-radio  :label="0">禁用</el-radio>
+								</el-radio-group>
+					    	</p>
+					    	
+					    	<p>
+					    		<el-button type="primary" @click="add">添加</el-button>
+					    	</p>
+				    	</div>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+					options:[{
+						value:0,
+						label:'顶级分类'
+					}],
+					name:'',
+					state:0,
+					category:''
+				},
+				//定义生命周期函数
+				mounted:function () {
+					var _that=this;
+					//将子分类写入到分类
+					ajax({
+						type:'get',
+						url:'/api/cate_name2.php',
+						success:function(data){
+							//console.log(data);
+							_that.options=_that.options.concat(data);
+						}
+					})
+				},
+				methods:{
+					add:function(){
+						var _that=this;
+						var name=this.name;
+						var state=this.state;
+						var category=this.category;
+						//console.log(name,state,category);
+						ajax({
+							type:'post',
+							url:'/api/cate_save_add.php',
+							data:`name=${name}&state=${state}&parentid=${category}`,
+							success:function(data){
+								console.log(data);
+								if(data.errcode=="0"){
+									alert(data.msg);
+									location.href="cate_list.html";
+								}
+								else{
+									alert(data.msg);
+								}
+							}
+						})
+					}
+				}
+				
+			})
+		</script>
+	</body>
+</html>

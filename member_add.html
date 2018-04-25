@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装的AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+		<!--引入jQ使用serialize方法-->
+		<script type="text/javascript" src="js/jquery-1.11.0.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>添加和编辑会员账号。带<span>*</span>为必填</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>添加编辑账号</span>
+					  	</div>
+				    	<el-form id="admin_add">
+				    		<p>
+				    		<span>*</span>真实名字：
+				    		<el-input v-model="name" placeholder="请输入用户名" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>会员卡卡号：
+				    		<el-input v-model="cardnum" size="small"></el-input>
+				    	</p>
+				    	
+				    	<p>
+				    		<span>*</span>用户组：
+				    		<el-select v-model="usergroup" placeholder="请选择">
+						    <el-option
+						      v-for="item in options"
+						      :key="item.value"
+						      :label="item.label"
+						      :value="item.value">
+						    </el-option>
+						  </el-select>
+				    	</p>
+				    	<p>
+				    		身份证号：
+				    		<el-input v-model="idcard" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		用户状态：
+				    		<template size="small">
+							  <el-radio v-model="status" label="启用">启用</el-radio>
+							  <el-radio v-model="status" label="禁用">禁用</el-radio>
+							</template>
+				    	</p>
+				    	<p>
+				    		手机号码：
+				    		<el-input v-model="phone" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		座机号码：
+				    		<el-input v-model="landline" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		邮箱地址：
+				    		<el-input v-model="email" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		详细地址：
+				    		<el-input v-model="address" size="small"></el-input>
+				    	</p>
+				    		地区选择：
+				    		<el-select v-model="city" placeholder="请选择" size="small">
+							    <el-option-group
+							      v-for="group in options3"
+							      :key="group.label"
+							      :label="group.label">
+							      <el-option
+							        v-for="item in group.options"
+							        :key="item.value"
+							        :label="item.label"
+							        :value="item.value">
+							      </el-option>
+							    </el-option-group>
+							  </el-select>
+				    	<p>
+				    		邮政编码：
+				    		<el-input v-model="postcode" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<el-button type="primary" @click="add">添加</el-button>
+				    	</p>
+				    	</el-form>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script>
+			new Vue({
+				el:"#app",
+				data:{
+					options: [{
+			          value: '至尊会员',
+			          label: '至尊会员'
+			        }, {
+			          value: '超级会员',
+			          label: '超级会员'
+			        }, {
+			          value: '普通会员',
+			          label: '普通会员'
+			        }],
+			        options3: [{
+			          label: '热门城市',
+			          options: [{
+			            value: 'Shanghai',
+			            label: '上海'
+			          }, {
+			            value: 'Beijing',
+			            label: '北京'
+			          }]
+			        }, {
+			          label: '城市名',
+			          options: [{
+			            value: 'Chengdu',
+			            label: '成都'
+			          }, {
+			            value: 'Shenzhen',
+			            label: '深圳'
+			          }, {
+			            value: 'Guangzhou',
+			            label: '广州'
+			          }, {
+			            value: 'Dalian',
+			            label: '大连'
+			          }]
+			        }],
+					name:'',
+			        cardnum:'',
+			        usergroup:'',
+			        idcard:'',
+			        status:'',
+			        phone:'',
+			        landline:'',
+			        email:'',
+			        city:'',
+			        address:'',
+			        postcode:''
+				},
+				methods:{
+					add:function(){
+						//1.获取表单数据
+						var name=this.name;
+						var cardnum=this.cardnum;
+						var usergroup=this.usergroup;
+						var idcard=this.idcard;
+						var status=this.status;
+						var phone=this.phone;
+						var landline=this.landline;
+						var email=this.email;
+						var city=this.city;
+						var address=this.address;
+						var postcode=this.postcode;
+						
+						//serialize()方法批量后去表单数据并拼接
+						//var all=$("#admin_add").serialize();
+						//console.log("表单数据",all);
+						
+						console.log(usergroup);
+						//2.发起请求将数据写入数据库
+						ajax({
+							type:'post',
+							url:'/api/member_save_add.php',
+							data:`name=${name}&cardnum=${cardnum}&usergroup=${usergroup}&idcard=${idcard}&status=${status}&phone=${phone}&landline=${landline}&email=${email}&city=${city}&address=${address}&postcode=${postcode}`,
+							success:function(data){
+								//根据后台传过来的值做判定
+								if(data.errcode=="0"){
+									alert(data.msg);
+									location.href="member_list2.html";
+								}
+								else{
+									alert(data.msg);
+								}
+							}
+						})
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

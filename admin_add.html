@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>main</title>
+		<!--CDN引入-->
+		 <!--引入样式--> 
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+		<!-- 引入组件库 -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<!--本地引入库-->
+		<!--<link rel="stylesheet" href="css/index.css" />
+		<link rel="stylesheet" type="text/css" href="css/font.css"/>
+		
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<script type="text/javascript" src="js/index.js" ></script>-->
+		
+		<!--本地引入-->
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>
+		<!--引入SESSION验证是否登录状态-->
+		<script src="./api/checkuser.php"></script>
+		<!--引入封装AJAX方法-->
+		<script type="text/javascript" src="js/ajax.js" ></script>
+	</head>
+	<body>
+		<div id="app">
+			<el-main style="background: #f6f6f6;" >
+			    	<el-container>
+			    	<!--右侧内容头部-->
+				    <el-header style="height: 100px;">
+				    	<h2>欢迎您 admin</h2>
+				    	<p>添加管理员账号</p>
+				    </el-header>
+				    <!--右侧内容主体-->
+				    <el-main >
+				    	<el-card class="box-card" >
+			    		<div slot="header" class="clearfix" >
+						    <span>添加管理员账号</span>
+					  	</div>
+				    	<div id="admin_add">
+				    		<p>
+				    		<span>*</span>用户名：
+				    		<el-input v-model="username" placeholder="请输入用户名" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>密码：
+				    		<el-input v-model="pwd" type="password" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>确认密码：
+				    		<el-input v-model="pwd2" type="password" size="small"></el-input>
+				    	</p>
+				    	<p>
+				    		<span>*</span>选择用户组：
+				    		<el-select v-model="usergroup" placeholder="请选择">
+						    <el-option
+						      v-for="item in options"
+						      :key="item.value"
+						      :label="item.label"
+						      :value="item.value">
+						    </el-option>
+						  </el-select>
+				    	</p>
+				    	<p>
+				    		<el-button type="primary" @click="add">添加</el-button>
+				    	</p>
+				    	</div>
+				    	</el-card>
+				    </el-main>
+				    <!--右侧内容尾部-->
+				    <el-footer>&copy;CopyRight2018华联超市系统 </el-footer>
+				  </el-container>
+			    </el-main>
+		</div>
+		<script type="text/javascript">
+			new Vue({
+				el:"#app",
+				data :{
+					options: [{
+			          value: '超级管理员',
+			          label: '超级管理员'
+			        }, {
+			          value: '普通管理员',
+			          label: '普通管理员'
+			        }, {
+			          value: '普通员工',
+			          label: '普通员工'
+			        }],
+			        usergroup:'',
+			        username:'',
+			        pwd:'',
+			        pwd2:''
+				},
+				methods:{
+					add:function(){
+						
+						//1.获取页面数据
+						var username=this.username;
+						var pwd=this.pwd;
+						var pwd2=this.pwd2;
+						var usergroup=this.usergroup;
+						
+						//2.判定两次密码是否相同
+						if(pwd!=pwd2){
+							alert("请输入相同的密码");
+						}
+						else{
+							ajax({
+								type:"post",
+								url:"/api/admin_save_add.php",
+								data:`username=${username}&pwd=${pwd}&usergroup=${usergroup}`,
+								dataType:"text",
+								success:function(data){
+									
+									//再根据后台返回的值进行逻辑判定
+									if(data=='1'){
+										alert('添加成功');
+										location.href='admin_list.html';
+									}
+								}
+							})
+							
+						}
+					}
+				}
+				
+			})
+		</script>
+	</body>
+</html>
